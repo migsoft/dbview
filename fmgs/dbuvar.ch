@@ -17,6 +17,11 @@
    #xcommand CATCH [<!oError!>] => errorBlock( bError ) ;;
                                    RECOVER [USING <oError>] <-oError-> ;;
                                    errorBlock( bError )
+   #xtranslate MemoWrit(<a>,<b>,<c>) => hb_MemoWrit(<a>,<b>)
+   #xtranslate CurDrive() => Hb_Curdrive()
+#else
+   #xtranslate hb_MemoWrit(<a>,<b>) => Memowrit(<a>,<b>,.N.)
+   #xtranslate Hb_CurDrive() => Curdrive()
 #endif
 
 memvar _DBUdbfopened, _DBUfname, _DBUindexed, _DBUfiltered, _DBUcondition, _DBUmaxrow, _DBUcontrolarr
