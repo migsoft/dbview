@@ -1025,12 +1025,22 @@ Procedure ExportData()
                     {"Dbase III files (*.prg)" , "*.prg" } , ;
                     {"All files (*.*)"         , "*.*"   }  }
 
+/*
         BEGIN SEQUENCE WITH {| oError | Break( oError ) }
               cSaveFile := PutFile( aFiltro,"Save As",,,TokenUpper( Lower( Alias() ) ), .T. )
               // Putfile( aFilter, title, cIniFolder, nochangedir, cDefaultFileName, lForceExt )
         RECOVER USING oError
               MsgInfo( dbv_ErrorMessage( oError ), PROGRAM+" Error !!!" )
         END /* SEQUENCE */
+*/
+
+        TRY
+              cSaveFile := PutFile( aFiltro,"Save As",,,TokenUpper( Lower( Alias() ) ), .T. )
+        CATCH loError
+              MsgInfo( dbv_ErrorMessage( loError ), PROGRAM+" Error !!!" )
+        END
+
+
 
         IF !Empty( cSaveFile )
 
@@ -1139,7 +1149,11 @@ Procedure SaveToXls( cFile )
 
    If !Empty( Alias() )
 
+#ifndef __XHARBOUR__
            IF ( oExcel := win_oleCreateObject("Excel.Application" ) ) == NIL
+#else
+           IF ( oExcel := CreateObject("Excel.Application" ) ) == NIL
+#endif
               MsgStop( "ERROR! Excel is not available. ["+ Ole2TxtError()+ "]", PROGRAM )
               Return
            ENDIF
@@ -1349,7 +1363,7 @@ Procedure VerCHM()
 
    cFile := "dbview.chm" 
     
-   If File(cBaseFolder+"\"+cFile) 
+   If File(cBaseFolder+"\"+cFile)
     
       _Execute( GetActiveWindow(), Nil, cBaseFolder+"\"+cFile, Nil, Nil, 5 )
 
@@ -2925,8 +2939,11 @@ If !Empty( cSavefile )
       MsgInfo( "Error: ", FError() )
    ENDIF
 
+#ifndef __XHARBOUR__
    TIP_HTMLTOSTR( oDoc:body:getText() )
-   //HtmlToOem( oDoc:body:getText() )
+#else
+   HtmlToOem( oDoc:body:getText() )
+#endif
 
 Endif
 

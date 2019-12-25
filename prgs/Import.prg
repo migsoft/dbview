@@ -193,9 +193,17 @@ Function DBF_ANSI2OEM(lOem)
               Aadd( aDatos, ( Alias() )->( Fieldget(i) ) )
              ( Alias() )->( flock() )
               If lOem == .T.
+#ifndef __XHARBOUR__
                  ( Alias() )->( Fieldput( i, iif("CM"$ValType(adatos[i]),WIN_AnsiToOEM(adatos[i]),adatos[i] ) ) )
+#else
+                 ( Alias() )->( Fieldput( i, iif("CM"$ValType(adatos[i]),Hb_AnsiToOEM(adatos[i]),adatos[i] ) ) )
+#endif
               Else
+#ifndef __XHARBOUR__
                  ( Alias() )->( Fieldput( i, iif("CM"$ValType(adatos[i]),WIN_OEMToAnsi(adatos[i]),adatos[i] ) ) )
+#else
+                 ( Alias() )->( Fieldput( i, iif("CM"$ValType(adatos[i]),Hb_OEMToAnsi(adatos[i]),adatos[i] ) ) )
+#endif
               Endif
              ( Alias() )->( DbUnLock() )
           Next
