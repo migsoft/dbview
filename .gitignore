@@ -4,6 +4,7 @@ xhbcc.bat
 resul.txt
 *.exe
 *.ini
+*.mpm
 /vOBJh
 /vOBJx
 /bOBJh
