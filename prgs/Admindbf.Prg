@@ -113,6 +113,9 @@ PROCEDURE CreaControles()
        Elseif ValType(&(aName[n]))=='D'
           @ nFil+(n*30) ,nCol DATEPICKER &(aCtrol[n]) value &(aName[n]) UpDown SHOWNONE
           Aadd( aTxtBx, .F. )
+       Elseif ValType(&(aName[n]))=='T'
+          @ nFil+(n*30) ,nCol DATEPICKER &(aCtrol[n]) value &(aName[n]) UpDown SHOWNONE
+          Aadd( aTxtBx, .F. )
        Elseif ValType(&(aName[n]))=='N'
           cInpMsk  := iif( nLongDec > 0, REPLICATE( "9", nLongTot - nLongDec -1 ) + "." + REPLICATE( "9", nLongDec ), REPLICATE( "9", nLongTot - nLongDec ) )
           nWidthF  := Min( iif(len(str(&(aName[n])))*10<40,40,len(str(&(aName[n])))*10),nLong )
