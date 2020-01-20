@@ -150,6 +150,7 @@ Procedure OpenBase( cDBF )
 Return
 
 *------------------------------------------------------------------------------*
+* Y=Currency, I=Integer, G=General, B=Double, @=DateTime, T=Time, 
 Procedure ArmMatrix()
 *------------------------------------------------------------------------------*
    Local i
@@ -158,12 +159,12 @@ Procedure ArmMatrix()
    cCtrl := "{}," ; aLect := {.F.}
 
    For i := 1 to nCamp
-       Aadd(aNomb,aEst[i,1])                             // Carga el nombre de campo
-       Aadd(aJust,iif(aEst[i,2]=='N',1,0))               // Justifica a la izquierda o derecha de acuerdo al tipo de dato  
-       Aadd(aLect,iif(aEst[i,2]=='+',.T.,.F.))           // Asigna solo lectura a campo autoincremental
-       cCtrl += AssiCtrlBrw( aEst[i,2], aEst[i,3],aEst[i,4],FieldName(i) )   // control por tipo de campo
-       Aadd(aLong,Max(100,Min(160,aEst[i,3]*14)))        // Asigna la longitud del dato en el browse
-       If     aEst[i,2]=="I" .OR. aEst[i,2]=="W" .OR. aEst[i,2]=="Y" .OR. aEst[i,2]=="B" 
+       Aadd(aNomb,aEst[i,1])                                                // Carga el nombre de campo
+       Aadd(aJust,iif(aEst[i,2]=='N',1,0))                                  // Justifica a la izquierda o derecha de acuerdo al tipo de dato
+       Aadd(aLect,iif(aEst[i,2]=='+',.T.,.F.))                              // Asigna solo lectura a campo autoincremental
+       cCtrl += AssiCtrlBrw( aEst[i,2], aEst[i,3],aEst[i,4],FieldName(i) )  // control por tipo de campo
+       Aadd(aLong,Max(100,Min(160,aEst[i,3]*14)))                           // Asigna la longitud del dato en el browse
+       If     aEst[i,2]=="I" .OR. aEst[i,2]=="W" .OR. aEst[i,2]=="Y" .OR. aEst[i,2]=="B"
               aEst[i,2]:= 'N'
        ElseIf aEst[i,2]=="+"
               aEst[i,2]:= '+'

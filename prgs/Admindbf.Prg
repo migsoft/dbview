@@ -88,6 +88,7 @@ Function CalcHeight()
 
 Return(nAlto1)
 
+/*
 *------------------------------------------------------------*
 PROCEDURE CreaControles()
 *------------------------------------------------------------*
@@ -114,7 +115,7 @@ PROCEDURE CreaControles()
           @ nFil+(n*30) ,nCol DATEPICKER &(aCtrol[n]) value &(aName[n]) UpDown SHOWNONE
           Aadd( aTxtBx, .F. )
        Elseif ValType(&(aName[n]))=='T'
-          @ nFil+(n*30) ,nCol DATEPICKER &(aCtrol[n]) value &(aName[n]) UpDown SHOWNONE
+          @ nFil+(n*30) ,nCol TEXTBOX &(aCtrol[n]) WIDTH 120 VALUE hb_TtoC( &(aName[n]) )
           Aadd( aTxtBx, .F. )
        Elseif ValType(&(aName[n]))=='N'
           cInpMsk  := iif( nLongDec > 0, REPLICATE( "9", nLongTot - nLongDec -1 ) + "." + REPLICATE( "9", nLongDec ), REPLICATE( "9", nLongTot - nLongDec ) )
@@ -138,6 +139,62 @@ PROCEDURE CreaControles()
    Next
 
 Return
+*/
+
+*------------------------------------------------------------*
+PROCEDURE CreaControles()
+*------------------------------------------------------------*
+   Local nFil:=10, nCol:=180; nLong:=400
+
+   @ nFil,10 FRAME FRAME_1 WIDTH 620 HEIGHT MAX(nAlto - 90, 138)
+
+   aLabel := {}  ; aCtrol := {} ; aName := {} ; aTxtBx := {}
+
+   aDBstru  := DBstruct()
+
+   For n := 1 to Len( aDBstru )
+
+       aadd( aLabel , "label_" + alltrim( str(n) ) )
+       aadd( aCtrol , "Control_" + alltrim( str(n) ) )
+       aadd( aName  , Fieldname(n) )
+       nLongTot := aDBstru[n,3] ; nLongDec := aDBstru[n,4]
+       @ nFil+(n*30),20 LABEL &(aLabel[n]) VALUE aName[n]+" ("+alltrim(str(nLongTot,6,0))+")" WIDTH nCol - 30
+
+       If aDBstru[n,2] == 'L'
+          @ nFil+(n*30) ,nCol CHECKBOX   &(aCtrol[n]) caption "Yes" value &(aName[n])
+          Aadd( aTxtBx, .F. )
+       Elseif aDBstru[n,2] == 'D'
+          @ nFil+(n*30) ,nCol DATEPICKER &(aCtrol[n]) value &(aName[n]) UpDown SHOWNONE
+          Aadd( aTxtBx, .F. )
+       Elseif aDBstru[n,2] == '@'
+          @ nFil+(n*30) ,nCol TEXTBOX &(aCtrol[n]) WIDTH 120 VALUE hb_TtoC( &(aName[n]) )
+          Aadd( aTxtBx, .F. )
+       Elseif aDBstru[n,2] == 'T'
+          @ nFil+(n*30) ,nCol TEXTBOX &(aCtrol[n]) WIDTH 120 VALUE hb_TtoC( &(aName[n]) )
+          Aadd( aTxtBx, .F. )
+       Elseif aDBstru[n,2] == 'N'
+          cInpMsk  := iif( nLongDec > 0, REPLICATE( "9", nLongTot - nLongDec -1 ) + "." + REPLICATE( "9", nLongDec ), REPLICATE( "9", nLongTot - nLongDec ) )
+          nWidthF  := Min( iif(len(str(&(aName[n])))*10<40,40,len(str(&(aName[n])))*10),nLong )
+          @ nFil+(n*30) ,nCol TEXTBOX &(aCtrol[n]) WIDTH nWidthF VALUE &(aName[n]) NUMERIC INPUTMASK cInpMsk RIGHTALIGN
+          Aadd( aTxtBx, .T. )
+       Elseif aDBstru[n,2] == '+'
+          cInpMsk  := iif( nLongDec > 0, REPLICATE( "9", nLongTot - nLongDec -1 ) + "." + REPLICATE( "9", nLongDec ), REPLICATE( "9", nLongTot - nLongDec ) )
+          nWidthF  := Min( iif(len(str(&(aName[n])))*10<40,40,len(str(&(aName[n])))*10),nLong )
+          @ nFil+(n*30) ,nCol TEXTBOX &(aCtrol[n]) WIDTH nWidthF VALUE &(aName[n]) NUMERIC INPUTMASK cInpMsk RIGHTALIGN READONLY
+          Aadd( aTxtBx, .T. )
+       Elseif aDBstru[n,2] == 'C'
+          @ nFil+(n*30) ,nCol TEXTBOX    &(aCtrol[n]) value &(aName[n]) width Min( iif(len(&(aName[n]))*10<40,40,len(&(aName[n]))*10),nLong )
+          Aadd( aTxtBx, .T. )
+       Elseif aDBstru[n,2] == 'M'
+          @ nFil+(n*30) ,nCol EDITBOX    &(aCtrol[n]) value &(aName[n]) width nLong height 81
+          nFil := nFil + 58
+          Aadd( aTxtBx, .F. )
+       Endif
+
+   Next
+
+Return
+
 
 *------------------------------------------------------------*
 PROCEDURE MyToolbar()
@@ -262,7 +319,7 @@ PROCEDURE ActivarEdicion
              Win_1.&(aCtrol[n]).ReadOnly := .T.
           Else
              Win_1.&(aCtrol[n]).ReadOnly := .F.
-          Endif 
+          Endif
        Else
           Win_1.&(aCtrol[n]).Enabled := .T.
        Endif
@@ -298,10 +355,16 @@ PROCEDURE AceptarEdicion()
       Nuevo := .F.
    EndIf
 
-   aDBstru  := DBstruct()
+   aDBstru  := (Alias())->(DBstruct()) 
 
    For n := 1 to FCount()
-       if !aDBStru[n,2]=='+'
+       If aDBStru[n,2]=='@'
+          (Alias())->&(aName[n]) := hb_CtoT( Win_1.&(aCtrol[n]).Value )
+       Endif
+       If aDBStru[n,2]=='T'
+          (Alias())->&(aName[n]) := hb_CtoT( DtoC(date())+Win_1.&(aCtrol[n]).Value )
+       Endif
+       If !aDBStru[n,2]$'+@T'
           (Alias())->&(aName[n]) := Win_1.&(aCtrol[n]).Value
        Endif
    Next
@@ -347,7 +410,7 @@ Return
 *------------------------------------------------------------*
 PROCEDURE Nuevo()
 *------------------------------------------------------------*
-   aDBstru  := DBstruct()   
+   aDBstru  := DBstruct()
 
    For n := 1 to FCount()
        aadd( aCtrol , "Control_" + alltrim( str(n) ) )
@@ -355,11 +418,15 @@ PROCEDURE Nuevo()
 
        If aDBStru[n,2]=='L'
           Win_1.&(aCtrol[n]).value := .F.
-       Elseif aDBStru[n,2]=='+' 
+       Elseif aDBStru[n,2]=='+'
           ( Alias() )->( DBGoBottom() )
           Win_1.&(aCtrol[n]).value := (Alias())->&(aName[n]) + 1
        Elseif aDBStru[n,2]=='D'
           Win_1.&(aCtrol[n]).value := ctod("  /  /  ")
+       Elseif aDBStru[n,2]=='@'
+          Win_1.&(aCtrol[n]).value := hb_DToT( Date(), "00:00:00.000" )
+       Elseif aDBStru[n,2]=='T'
+          Win_1.&(aCtrol[n]).value := Hb_Datetime(00,00,00,000)
        Elseif aDBStru[n,2]=='N'
           Win_1.&(aCtrol[n]).value := 0
        Elseif aDBStru[n,2]=='C'
