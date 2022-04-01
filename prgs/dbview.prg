@@ -150,7 +150,7 @@ Procedure OpenBase( cDBF )
 Return
 
 *------------------------------------------------------------------------------*
-* Y=Currency, I=Integer, G=General, B=Double, @=DateTime, T=Time, 
+* Y=Currency, I=Integer, G=General, B=Double, @=DateTime, T=Time,
 Procedure ArmMatrix()
 *------------------------------------------------------------------------------*
    Local i
@@ -172,6 +172,7 @@ Procedure ArmMatrix()
               aEst[i,2]:= 'M'
        ElseIf aEst[i,2]=="@" .OR. aEst[i,2]=="T"
               aEst[i,2]:= 'D'
+//              aEst[i,2]:= 'C'
        Endif
        Aadd(aFtype, aEst[i,2])                           // Carga el tipo de campo
    Next
@@ -319,7 +320,7 @@ Procedure SeleArea()
       DBSelectArea( ( Alias() )->( Select( oWndBase.Tab_1.caption( oWndBase.Tab_1.value ) ) ) )
       cBase := Alias()
 
-      If IsControlDefine(&(Browse_n()),oWndBase)
+      If IsControlDefined(&(Browse_n()),oWndBase)
          oWndBase.&(Browse_n()).SetFocus
       Endif
 
@@ -337,7 +338,7 @@ Procedure CierraBase()
 
       Set Index To
 
-      If IsControlDefine( &(Browse_n()), oWndBase )
+      If IsControlDefined( &(Browse_n()), oWndBase )
          oWndBase.&(Browse_n()).release
          Close ( oWndBase.Tab_1.caption( oWndBase.Tab_1.value ) )
          oTab:DeletePage ( oTab:value, oTab:caption( oTab:value ) )
@@ -421,13 +422,13 @@ Return( cCtrlBrw )
 Procedure Adjust()
 *------------------------------------------------------------------------------*
    Local na
-   If IsControlDefine(Tab_1,oWndBase)
+   If IsControlDefined(Tab_1,oWndBase)
       cAreaPos  := AllTrim( Str( ( Alias() )->( Select( oWndBase.Tab_1.caption( oWndBase.Tab_1.value ) ) ) ) )
       cBrowse_n := "Browse_"+cAreaPos
-      If IsControlDefine(&(cbrowse_n),oWndBase)
+      If IsControlDefined(&(cbrowse_n),oWndBase)
          For na := 1 to 255
              cBrowse_n := "Browse_"+AllTrim( Str(na) )
-             If IsControlDefine(&(cbrowse_n),oWndBase)
+             If IsControlDefined(&(cbrowse_n),oWndBase)
                 SetProperty( "oWndBase", cbrowse_n, "Width", oWndBase.width  - 40 )
                 SetProperty( "oWndBase", cbrowse_n, "Height", oWndBase.height  - 152 )
              Endif
@@ -436,7 +437,7 @@ Procedure Adjust()
          oWndBase.Tab_1.Height    := oWndBase.height - 122
       Endif
    Endif
-   If IsControlDefine(Image_1,oWndBase)
+   If IsControlDefined(Image_1,oWndBase)
       oWndBase.Image_1.width   := oWndBase.width
       oWndBase.Image_1.height  := oWndBase.height - 122
    Endif
@@ -837,7 +838,7 @@ return
 Procedure Append()
 *------------------------------------------------------------------------------*
    If !Empty( Alias() )
-      If IsControlDefine(&(Browse_n()),oWndBase)
+      If IsControlDefined(&(Browse_n()),oWndBase)
          Nuevo := .T.
          Administradbf( oWndBase.&(Browse_n()).Value[1] )
          Siguiente()
@@ -945,7 +946,7 @@ Procedure BackColorBrowse()
 *--------------------------------------------------------*
    Local nc
    If !Empty( Alias() )
-   If IsControlDefine(&(Browse_n()),oWndBase)
+   If IsControlDefined(&(Browse_n()),oWndBase)
       aBackClr := GetColor()
       For nc := 1 to oWndBase.Tab_1.ItemCount
           cAreaPos  := AllTrim( Str( ( Alias() )->( Select( oWndBase.Tab_1.caption( nc ) ) ) ) )
@@ -962,7 +963,7 @@ Procedure FontColorBrowse()
 *--------------------------------------------------------*
    Local nc
    If !Empty( Alias() )
-   If IsControlDefine(&(Browse_n()),oWndBase)
+   If IsControlDefined(&(Browse_n()),oWndBase)
       aBackClr := GetColor()
       For nc := 1 to oWndBase.Tab_1.ItemCount
           cAreaPos  := AllTrim( Str( ( Alias() )->( Select( oWndBase.Tab_1.caption( nc ) ) ) ) )
@@ -980,7 +981,7 @@ Procedure FontNameBrowse(nOpt)
 *--------------------------------------------------------*
    Local nc
    If !Empty( Alias() )
-   If IsControlDefine(&(Browse_n()),oWndBase)
+   If IsControlDefined(&(Browse_n()),oWndBase)
       if nOpt == 1
          aFont := GetFont()
          If !Empty(aFont[1])
@@ -1350,8 +1351,8 @@ Return
 Procedure VerRegistro()
 *------------------------------------------------------------*
    If !Empty( Alias() )
-      If IsControlDefine(Tab_1,oWndBase)
-         If IsControlDefine(&(Browse_n()),oWndBase)
+      If IsControlDefined(Tab_1,oWndBase)
+         If IsControlDefined(&(Browse_n()),oWndBase)
             aRec :=  oWndBase.&(Browse_n()).Value
             Administradbf( aRec[1] )
             Actualizar()
@@ -2579,7 +2580,9 @@ History
 
 */
 
+#ifndef DBS_NAME
 #define DBS_NAME  1
+#endif
 #define FLD_BLK   1
 #define FLD_VAL   2
 
