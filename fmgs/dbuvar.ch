@@ -3,7 +3,7 @@
  */
 
 #define PROGRAM        'DBF Viewer 2020 '
-#define COPYRIGHT      ' (c)2009-2019 MigSoft  '
+#define COPYRIGHT      ' (c)2009-2022 MigSoft  '
 #define CRLF           HB_OsNewLine()
 #define _DBUreddish    {255,200,200}
 #define _DBUgreenish   {200,255,200}
