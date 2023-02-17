@@ -2,6 +2,9 @@
 compres.bat
 xhbcc.bat
 resul.txt
+_Build.Bat
+*.log
+*.gcc
 *.exe
 *.ini
 *.mpm
