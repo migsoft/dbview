@@ -12,6 +12,10 @@ _Build.Bat
 /vOBJx
 /bOBJh
 /mOBJh
+/vOBJh64
+/vOBJx64
+/bOBJh64
+/mOBJh64
 
 # Windows image file caches
 Thumbs.db

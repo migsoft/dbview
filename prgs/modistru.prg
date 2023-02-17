@@ -235,7 +235,7 @@ function DBUmodistructure(cBase)
 
 
     _DBUfname  := cBase
-     cPathDBFm := cFilePath(aFiles[( Alias() )->( Select( oWndBase.Tab_1.caption( oWndBase.Tab_1.value ) ) )])
+     cPathDBFm := cFilePath44(aFiles[( Alias() )->( Select( oWndBase.Tab_1.caption( oWndBase.Tab_1.value ) ) )])
 
     _DBUfname1 := "DBTemp"
 
@@ -367,7 +367,7 @@ FUNCTION App_Progress()
 Return(.T.)
 
 *---------------------------------------------------------------------*
-Function cFilePath( cPathMask )
+Function cFilePath44( cPathMask )
 *---------------------------------------------------------------------*
    local n := RAt( "\", cPathMask ), cDisk
 
