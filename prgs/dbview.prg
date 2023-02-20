@@ -9,7 +9,7 @@
  * http://harbourminigui.googlepages.com/
  *
  * Program to view DBF files using standard Browse control
- * Miguel Angel Ju·rez A. - 2009-2014 MigSoft <mig2soft/at/yahoo.com>
+ * Miguel Angel Ju√°rez A. - 2009-2023 MigSoft <mig2soft/at/oohg.org>
  * Includes the code of Grigory Filatov <gfilatov@freemail.ru>
  * and Rathinagiri <srathinagiri@gmail.com>
  *
@@ -102,11 +102,21 @@ Procedure OpenBase( cDBF )
       If !IsControlDefined(Tab_1,oWndBase)
          oWndBase.Image_1.Show
       Endif
-      aTypes   := { {'Database files (*.dbf)', '*.dbf'} }
+      aTypes   := { {'Database files (*.dbf)', '*.dbf'} , {'Database files (*.m3u)', '*.m3u'} }
       aTemp    := iif( !Empty(aNewFile),aNewFile[1],"")
       aNewFile := GetFile( aTypes, 'Select database files', CurDir(), .T. )
       If Empty(aNewFile)
          Aadd( aNewFile, aTemp )
+      Else
+         If Upper(Right(aNewFile[1],3))="M3U"
+            cFileM2D := DelExt(GetName(aNewFile[1]))      
+            If !File( cFileM2D )  
+               CreaM3U( cFileM2D )
+               close &cFileM2D
+            Endif 
+            FillReg( aNewFile[1] )
+            aNewFile[1] :=cFileM2D+".dbf"
+         Endif     
       Endif
    Else
       AAdd( aNewFile, cDBF )
@@ -115,6 +125,7 @@ Procedure OpenBase( cDBF )
    IF !Empty(aNewFile)
        For nn := 1 to Len(aNewFile)
            If !Empty(aNewFile[nn]) .AND. Upper(Right(aNewFile[nn],3))="DBF"
+
                   If DB_Open( aNewFile[nn] )
                      _DBULastPath := hb_Curdrive()+':\'+CurDir()+'\'
 
@@ -150,6 +161,66 @@ Procedure OpenBase( cDBF )
 Return
 
 *------------------------------------------------------------------------------*
+Function DB_Open( cFileDBF )
+*------------------------------------------------------------------------------*
+   lSuc := .F.
+      TRY
+          If ! ( DelExt(GetName(cFileDBF)) )->( Used() )
+             Use ( cFileDBF ) New
+             lSuc := .T.
+             Aadd( aArea, ( Alias() )->( Select() ) )
+             nArea++
+             nBase++
+          Endif
+      CATCH loError
+          MsgInfo("Unable open file: "+cFileDBF, PROGRAM+" TRY")
+      END
+Return (lSuc)
+
+*------------------------------------------------------------------------------*
+* cTVid, cTVname, cTVlogo, cTVgroup, cTVurl
+Procedure CreaM3U( cM3Uname )
+*------------------------------------------------------------------------------*
+   local aStruct:= {    { 'TVid'    , 'C' , 200 , 0 }, ;
+                        { 'TVlogo'  , 'C' , 500 , 0 }, ;
+                        { 'TVgroup' , 'C' , 200 , 0 }, ;
+                        { 'TVname'  , 'C' , 200 , 0 }, ;
+                        { 'TVurl'   , 'C' , 500 , 0 }   }
+   REQUEST DBFCDX
+   DBCreate( cBaseFolder+'\'+cM3Uname, aStruct, "DBFCDX",.T.,cM3Uname )
+Return
+
+*------------------------------------------------------------------------------*
+Procedure FillReg(cNameM3U)
+*------------------------------------------------------------------------------*
+Local aData := {}
+
+   Close ( DelExt(GetName(cNameM3U)) )
+
+   cFileData := DelExt(GetName(cNameM3U))
+   aData     := m3u2Arr ( cNameM3U )
+
+   Use ( cFileData )
+      
+   If !Empty( Alias() )
+      zap
+   Endif
+
+   For i := 1 to Len(aData)
+      Append Blank
+      ((Alias())->TVid )    := aData[i,1]
+      ((Alias())->TVlogo )  := aData[i,2]
+      ((Alias())->TVgroup ) := aData[i,3]
+      ((Alias())->TVname )  := aData[i,4]
+      ((Alias())->TVurl )   := aData[i,5]
+      SKIP
+   Next
+
+   Close &cFileData
+
+Return
+
+*------------------------------------------------------------------------------*
 * Y=Currency, I=Integer, G=General, B=Double, @=DateTime, T=Time,
 Procedure ArmMatrix()
 *------------------------------------------------------------------------------*
@@ -181,23 +252,6 @@ Procedure ArmMatrix()
    CreaBrowse( cBase, aNomb, aLong, aJust, aFtype, aCtrl )
 
 Return
-
-*------------------------------------------------------------------------------*
-Function DB_Open( cFileDBF )
-*------------------------------------------------------------------------------*
-   lSuc := .F.
-      TRY
-          If ! ( DelExt(GetName(cFileDBF)) )->( Used() )
-             Use ( cFileDBF ) New
-             lSuc := .T.
-             Aadd( aArea, ( Alias() )->( Select() ) )
-             nArea++
-             nBase++
-          Endif
-      CATCH loError
-          MsgInfo("Unable open file: "+cFileDBF, PROGRAM+" TRY")
-      END
-Return (lSuc)
 
 *---------------------------------------------------------------------*
 FUNCTION GetName(cFileName)
@@ -295,7 +349,7 @@ Return
 
 
 *------------------------------------------------------*
-Procedure NuevoTab() // CortesÌa: Ciro Vargas Clemow
+Procedure NuevoTab() // Cortes√≠a: Ciro Vargas Clemow
 *------------------------------------------------------*
    cAreaPos  := AllTrim( Str( aArea[nBase] ) )
    cBrowse_n := "Browse_"+cAreaPos
@@ -381,7 +435,7 @@ Procedure CierraAll()
 Return
 
 *------------------------------------------------------*
-Function Iniciando()     // CortesÌa: Fernando Yurisich
+Function Iniciando()     // Cortes√≠a: Fernando Yurisich
 *------------------------------------------------------*
    ooWndBase:AcceptFiles := .T.
    ooWndBase:OnDropFiles := { |f| AEval( f, { |c| OpenBase( c ) } ) }
@@ -559,7 +613,7 @@ Procedure CopyRec(nOp)  // Copiar
        If nOp = 1   // Selecciona registro
           RecReply()
           MuestraRec()
-       Else         // Limpia SelecciÛn de registro
+       Else         // Limpia SelecciÔøΩn de registro
           nRecCopy := {}
           nRecSel := 0
           oWndBase.StatusBar.Item(2) := 'Selected Record: '
@@ -784,8 +838,10 @@ return
 Function Browse_n()
 *------------------------------------------------------------------------------*
 Local cAreaPos, cBrowse_n
-   cAreaPos  := AllTrim( Str( ( Alias() )->( Select( oWndBase.Tab_1.caption( oWndBase.Tab_1.value ) ) ) ) )
-   cBrowse_n := "Browse_"+cAreaPos
+   If IsControlDefined(Tab_1,oWndBase)
+      cAreaPos  := AllTrim( Str( ( Alias() )->( Select( oWndBase.Tab_1.caption( oWndBase.Tab_1.value ) ) ) ) )
+      cBrowse_n := "Browse_"+cAreaPos
+   Endif
 Return( cBrowse_n )
 
 *------------------------------------------------------------------------------*
@@ -3172,3 +3228,137 @@ Function WhatCvsVer()
    oFile:Close()
 
 Return( aCvs )
+
+*------------------------------------------------------------*
+FUNCTION m3u2Arr ( cFileM3U )
+*------------------------------------------------------------*
+    LOCAL cMemo, nLines, n, nMax, nPosi, cLine
+    LOCAL aOne := {}, aLines := {}
+    LOCAL cTVid, cTVname, cTVlogo, cTVgroup, cTVurl
+    LOCAL lDone := .F., lSucces := .F.
+
+  BEGIN SEQUENCE WITH {| oError | Break( oError ) }
+
+    cMemo  := Hb_MemoRead( cFileM3U )
+    cMemo  := StrTran( cMemo, CHR(10), CHR(13)+CHR(10) )
+    aLines := hb_ATokens( cMemo, CHR(10) )
+    nMax   := Len( aLines )
+
+    FOR n  := 1 TO nMax
+
+        cLine := MemoLine( cMemo, 15000, n, 2 , .T. )
+
+        IF Empty( cLine )  .OR.  "#EXTM3U" $ Upper(cLine)
+            LOOP
+        ENDIF
+
+        IF "#EXTINF" $ Upper(cLine)
+
+            cTVid    := ""
+            cTVname  := ""
+            cTVlogo  := ""
+            cTVgroup := ""
+            cTVurl   := ""
+            lDone    := .F.
+
+            DO WHILE lDone = .F.
+
+                IF AT( "tvg-id=", cLine ) > 0
+                    nPosi := AT( "tvg-id=", cLine )
+                    IF nPosi > 0
+                        cTVid := SUBSTR( cLine, nPosi + 8 )
+                        nPos2 := ATI( '"', cTVid )
+                        cTVid := Left( SUBSTR( cTVid, 1, nPos2 - 1 ), 80 )
+                    ENDIF
+                ENDIF
+
+                IF AT( "tvg-logo=", cLine ) > 0
+                    nPosi := AT( "tvg-logo=", cLine )
+                    IF nPosi > 0
+                        cTVlogo := SUBSTR( cLine, nPosi + 10 )
+                        nPos2   := ATI( '"', cTVlogo )
+                        cTVlogo := Left( SUBSTR( cTVlogo, 1, nPos2 - 1 ), 300 )
+                    ENDIF
+                ENDIF
+
+                IF AT( "group-title=", cLine ) > 0
+                    nPosi := AT( "group-title=", cLine )
+                    IF nPosi > 0
+                        cTVgroup := SUBSTR( cLine, nPosi + 13 )
+                        nPos2    := ATI( '"', cTVgroup )
+                        cTVgroup := Left( SUBSTR( cTVgroup, 1, nPos2 - 1 ), 80)
+                    ENDIF
+                ENDIF
+
+                IF AT( ',', cLine ) > 0
+                    nPosi  := AT( ',', cLine )
+                    IF nPosi > 0
+                        cTVname := SUBSTR( cLine, nPosi + 1 )
+                        nPos2   := ATI( CHR(13)+CHR(10), cTVname )
+                        IF nPos2 > 0
+                           cTVname := SUBSTR( cTVname, nPos2 + 1 )
+                        Else
+                           cTVname := Left( SUBSTR( cTVname, 1, nPos2 - 1 ), 300) 
+                        Endif
+                    ENDIF
+                ENDIF
+
+                lDone := .T.
+
+            ENDDO
+
+        ELSEIF "HTTP" $ Upper(cLine) .OR. "PLUGIN://" $ Upper(cLine) .OR. ":\" $ Upper(cLine)
+
+            IF AT( "http://", cLine ) > 0
+                nPosi  := AT( "http://", cLine )
+                IF nPosi > 0
+                    cTVurl := Left( SUBSTR( cLine, nPosi ), 500)
+                ENDIF
+            ENDIF
+
+            If Empty( cTVurl )
+
+                IF AT( "https://", cLine ) > 0
+                    nPosi  := AT( "https://", cLine )
+                    IF nPosi > 0
+                        cTVurl := Left( SUBSTR( cLine, nPosi ), 500)
+                    ENDIF
+                ENDIF
+
+            Endif
+
+            IF AT( "plugin://", cLine ) > 0
+                nPosi  := AT( "plugin://", cLine )
+                IF nPosi > 0
+                    cTVurl := Left( SUBSTR( cLine, nPosi ), 500)
+                ENDIF
+            ENDIF
+
+            IF AT( ":\", cLine ) > 0
+                nPosi  := AT( ":\", cLine )
+                IF nPosi > 0
+                    cTVurl := Left( SUBSTR( cLine, nPosi - 1 ), 500)
+                ENDIF
+            ENDIF
+
+            AAdd( aOne, {AllTrim( cTVid ), AllTrim( cTVlogo ), AllTrim( cTVgroup ), AllTrim( cTVname ), AllTrim( cTVurl )} )
+
+        ENDIF
+
+        DO EVENTS
+
+    NEXT
+
+    lSucces := .T.
+
+  RECOVER USING oError
+    AutoMsgInfo( oError:Operation+CRLF+oError:Description, "Error !!!" )
+    lSucces := .F.
+
+  END
+
+/*
+  AutoMsgInfo( Hb_ValtoExp( aOne) )
+*/
+
+RETURN( aOne )
